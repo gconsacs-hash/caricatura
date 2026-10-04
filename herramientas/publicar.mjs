@@ -7,6 +7,7 @@
 // El testigo de acceso se pide a `gh` y no se escribe en ninguna parte.
 
 import { execFileSync } from 'node:child_process';
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -118,16 +119,40 @@ async function publicar() {
   }
 
   const arbol = [];
+  let subidos = 0, reutilizados = 0, bytesSubidos = 0;
   for (const a of archivos) {
-    const contenido = fs.readFileSync(a.completa).toString('base64');
-    const blob = await api(`/repos/${DUENO}/${REPO}/git/blobs`, {
-      method: 'POST',
-      body: JSON.stringify({ content: contenido, encoding: 'base64' }),
-    });
-    arbol.push({ path: a.ruta, mode: '100644', type: 'blob', sha: blob.sha });
-    const mb = a.tamano / 1024 / 1024;
-    console.log(`  subido ${a.ruta.padEnd(42)} ${mb >= 0.1 ? `${mb.toFixed(1)} MB` : `${(a.tamano / 1024).toFixed(0)} KB`}`);
+    const datos = fs.readFileSync(a.completa);
+    // Identificador que usa git para el contenido de un archivo. Calculándolo aquí se
+    // puede saltar la subida de lo que ya está en el repositorio: sin esto, cambiar una
+    // coma obligaría a volver a subir los 26 MB del detector.
+    const sha = crypto.createHash('sha1')
+      .update(Buffer.concat([Buffer.from(`blob ${datos.length}\0`), datos]))
+      .digest('hex');
+
+    let existe = false;
+    try {
+      await api(`/repos/${DUENO}/${REPO}/git/blobs/${sha}`, { headers: { accept: 'application/vnd.github.raw' } });
+      existe = true;
+    } catch (e) {
+      if (e.estado !== 404) throw e;
+    }
+
+    if (!existe) {
+      const blob = await api(`/repos/${DUENO}/${REPO}/git/blobs`, {
+        method: 'POST',
+        body: JSON.stringify({ content: datos.toString('base64'), encoding: 'base64' }),
+      });
+      arbol.push({ path: a.ruta, mode: '100644', type: 'blob', sha: blob.sha });
+      subidos++;
+      bytesSubidos += a.tamano;
+      const mb = a.tamano / 1024 / 1024;
+      console.log(`  subido  ${a.ruta.padEnd(42)} ${mb >= 0.1 ? `${mb.toFixed(1)} MB` : `${(a.tamano / 1024).toFixed(0)} KB`}`);
+    } else {
+      arbol.push({ path: a.ruta, mode: '100644', type: 'blob', sha });
+      reutilizados++;
+    }
   }
+  console.log(`\n${subidos} subidos (${(bytesSubidos / 1024 / 1024).toFixed(1)} MB), ${reutilizados} ya estaban`);
 
   // ¿había ya un commit en la rama?
   let padre = null;

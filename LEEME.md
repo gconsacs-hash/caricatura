@@ -5,10 +5,33 @@ externo: la foto no sale de tu computador.
 
 ## Para empezar
 
-Doble clic en **Iniciar.cmd**. Se abre el navegador en `http://localhost:3300`.
-(Hace falta Node instalado; no hay que instalar ninguna librería.)
+**En el teléfono o la tablet:** <https://gconsacs-hash.github.io/caricatura/>
 
+Para dejarla instalada como app, con su icono y a pantalla completa:
+
+1. Abre esa dirección en Chrome.
+2. Menú ⋮ → **Añadir a pantalla de inicio** (o pulsa el botón *Instalar en el aparato*
+   que aparece abajo del todo en la propia app).
+3. Dentro de la app, pulsa una vez **Guardar para usar sin conexión**: baja los 16 MB del
+   detector de rostros y a partir de ahí funciona sin internet, también en avión.
+
+En iPhone es Compartir → Añadir a pantalla de inicio.
+
+**En el computador:** doble clic en **Iniciar.cmd**. Se abre el navegador en
+`http://localhost:3300`. Hace falta Node instalado; no hay que instalar ninguna librería.
 Para pararlo: Ctrl+C en la ventana negra, o cerrarla.
+
+En ambos casos la foto se procesa dentro del navegador y **no se envía a ningún sitio**.
+La página solo sirve los archivos de la app; tu imagen nunca sube a GitHub ni a nada.
+
+### Publicar una actualización
+
+```
+node herramientas\publicar.mjs
+```
+
+Sube solo lo que haya cambiado (el detector de 26 MB se reutiliza) y refresca
+GitHub Pages. Requiere `gh` instalado y con sesión iniciada.
 
 ## Qué hace, y por qué así
 
@@ -103,6 +126,10 @@ js/deteccion.js     MediaPipe Face Landmarker
 js/demo.js          el rostro de prueba dibujado con código
 js/app.js           la interfaz
 servidor.js         servidor estático (Node puro)
+sw.js               trabajador de servicio: instalación y uso sin conexión
+manifest.webmanifest
+iconos/             iconos de la app (generados con herramientas/iconos.mjs)
+herramientas/       generador de iconos y publicador a GitHub Pages
 vendor/             MediaPipe: wasm + modelo, copia local
 tests/              73 pruebas
 ```
