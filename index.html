@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Caricatura — método Loomis · Kascht</title>
+<meta name="theme-color" content="#15171c">
+<meta name="description" content="Convierte una foto en caricatura midiendo el rostro contra el canon de Andrew Loomis y exagerando solo lo que se desvía, al modo de John Kascht. Todo el procesado ocurre en tu aparato.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="iconos/icono-192.png">
+<link rel="apple-touch-icon" href="iconos/icono-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Caricatura">
+<link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+
+<header>
+  <h1>Caricatura</h1>
+  <p class="lema">Mide el rostro contra el canon de <strong>Andrew Loomis</strong> y exagera solo lo que se
+  desvía, que es como trabaja <strong>John Kascht</strong>. Todo ocurre en tu propio aparato.</p>
+</header>
+
+<main>
+  <!-- ───────────── panel de control ───────────── -->
+  <aside id="panel">
+
+    <section class="bloque" id="bloqueFoto">
+      <h2>1 · Foto</h2>
+      <div id="zonaSoltar">
+        <p>Arrastra una foto aquí</p>
+        <label class="boton">Elegir archivo<input type="file" id="archivo" accept="image/*" hidden></label>
+        <button class="boton secundario" id="btnDemo">Usar dibujo de prueba</button>
+      </div>
+      <p class="pista">De frente, cara despejada y buena luz. La foto no sale de tu equipo.</p>
+      <label class="fila"><input type="checkbox" id="encuadrar" checked> Encuadrar en la cabeza</label>
+    </section>
+
+    <section class="bloque oculto" id="bloqueRostro">
+      <h2>2 · Rostro</h2>
+      <p id="estadoRostro" class="estado">—</p>
+      <div class="botones">
+        <button class="boton secundario" id="btnRetocar">Retocar puntos</button>
+        <button class="boton secundario" id="btnManual">Marcar a mano</button>
+      </div>
+      <p class="pista" id="pistaManual"></p>
+    </section>
+
+    <section class="bloque oculto" id="bloqueAnalisis">
+      <h2>3 · Lo que define este rostro</h2>
+      <ol id="rasgos"></ol>
+      <details>
+        <summary>Todas las medidas</summary>
+        <table id="tablaMedidas"></table>
+      </details>
+      <div class="canonCaja">
+        <label class="fila"><input type="checkbox" id="usarAprendido"> Comparar con el canon aprendido
+          (<span id="numAprendido">0</span> rostros)</label>
+        <button class="boton secundario pequeno" id="btnAprender">Añadir este rostro al canon</button>
+        <button class="boton secundario pequeno" id="btnOlvidar">Vaciar</button>
+      </div>
+    </section>
+
+    <section class="bloque oculto" id="bloqueExagerar">
+      <h2>4 · Exageración</h2>
+      <label class="deslizador grande">
+        <span>Intensidad <b id="valIntensidad">1,2</b></span>
+        <input type="range" id="intensidad" min="0" max="3" step="0.05" value="1.2">
+      </label>
+      <div class="atajos">
+        <button class="boton pequeno" data-intensidad="0">Fiel</button>
+        <button class="boton pequeno" data-intensidad="0.8">Suave</button>
+        <button class="boton pequeno" data-intensidad="1.5">Caricatura</button>
+        <button class="boton pequeno" data-intensidad="2.5">Bestia</button>
+      </div>
+      <details>
+        <summary>Rasgo por rasgo</summary>
+        <div id="deslizadores"></div>
+      </details>
+      <details>
+        <summary>Decisiones del dibujante</summary>
+        <div id="libres"></div>
+      </details>
+    </section>
+
+    <section class="bloque oculto" id="bloqueEstilo">
+      <h2>5 · Acabado</h2>
+      <div class="estilos" id="estilos"></div>
+      <div id="capas"></div>
+      <label class="deslizador" id="cajaCalidad">
+        <span><em>Tamaño del dibujo</em><b id="valCalidad"></b></span>
+        <select id="calidad">
+          <option value="520">Rápido (520 px)</option>
+          <option value="720">Normal (720 px)</option>
+          <option value="900">Grande (900 px)</option>
+        </select>
+      </label>
+    </section>
+
+    <section class="bloque oculto" id="bloqueExportar">
+      <h2>6 · Guardar</h2>
+      <div class="botones">
+        <button class="boton" id="btnPng">PNG</button>
+        <button class="boton secundario" id="btnSvg">SVG del trazo</button>
+        <button class="boton secundario" id="btnLamina">Lámina de análisis</button>
+      </div>
+    </section>
+
+    <section class="bloque" id="bloqueInstalar">
+      <h2>App</h2>
+      <p class="pista" id="estadoInstalar">—</p>
+      <div class="botones">
+        <button class="boton oculto" id="btnInstalar">Instalar en el aparato</button>
+        <button class="boton secundario" id="btnSinConexion">Guardar para usar sin conexión</button>
+      </div>
+    </section>
+
+    <p class="pie">Los puntos del rostro los localiza MediaPipe Face Landmarker, incluido en la
+    carpeta <code>vendor/</code>. Sin servicios externos: tu foto no se envía a ninguna parte.</p>
+  </aside>
+
+  <!-- ───────────── lienzos ───────────── -->
+  <div id="escena">
+    <div id="aviso" class="aviso">Carga una foto para empezar.</div>
+    <div id="lienzos">
+      <figure>
+        <canvas id="lienzoOriginal"></canvas>
+        <figcaption>Original <span id="etiquetaPuntos"></span></figcaption>
+      </figure>
+      <figure>
+        <canvas id="lienzoCaricatura"></canvas>
+        <figcaption>Caricatura</figcaption>
+      </figure>
+    </div>
+    <div id="trabajando" class="trabajando oculto"><span></span>Dibujando…</div>
+  </div>
+</main>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

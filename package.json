@@ -1,0 +1,12 @@
+{
+  "name": "caricatura",
+  "version": "1.0.0",
+  "description": "Caricaturas desde una foto por el metodo de Loomis y Kascht. Sin dependencias: MediaPipe va incluido en vendor/.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node servidor.js",
+    "test": "node tests/correr.mjs",
+    "diagnostico": "node tests/diagnostico.mjs"
+  }
+}

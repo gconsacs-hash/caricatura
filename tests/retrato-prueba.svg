@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="700" height="800" viewBox="0 0 700 800">
+  <!-- Retrato esquemático para probar la carga de archivos. No es una foto, así que el
+       detector automático puede no reconocerlo: eso también es parte de la prueba. -->
+  <rect width="700" height="800" fill="#1e2228"/>
+  <ellipse cx="350" cy="380" rx="200" ry="270" fill="#dcbda3"/>
+  <path d="M150 400 Q150 600 250 680 Q350 730 450 680 Q550 600 550 400 Z" fill="#dcbda3"/>
+  <path d="M150 300 Q350 120 550 300 Q520 170 350 150 Q180 170 150 300 Z" fill="#3b2f28"/>
+  <ellipse cx="270" cy="370" rx="42" ry="20" fill="#f6f1e8"/>
+  <ellipse cx="430" cy="370" rx="42" ry="20" fill="#f6f1e8"/>
+  <circle cx="270" cy="370" r="16" fill="#46382c"/>
+  <circle cx="430" cy="370" r="16" fill="#46382c"/>
+  <circle cx="270" cy="370" r="7" fill="#15110d"/>
+  <circle cx="430" cy="370" r="7" fill="#15110d"/>
+  <path d="M225 325 Q270 305 315 322" stroke="#3b2f28" stroke-width="14" fill="none" stroke-linecap="round"/>
+  <path d="M385 322 Q430 305 475 325" stroke="#3b2f28" stroke-width="14" fill="none" stroke-linecap="round"/>
+  <path d="M345 390 Q335 470 320 500 Q350 515 380 500" stroke="#b08d74" stroke-width="7" fill="none"/>
+  <path d="M290 580 Q350 555 410 580 Q350 625 290 580 Z" fill="#a9655c"/>
+  <rect x="300" y="640" width="100" height="90" fill="#c9a98d"/>
+</svg>
